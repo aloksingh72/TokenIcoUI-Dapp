@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
@@ -67,7 +68,7 @@ const ConnectWallet: React.FC<ConnectWalletProps> = ({ setAddress }) => {
         try {
             if ((window as any).ethereum) { // Check if MetaMask  is available
                 const provider = new ethers.BrowserProvider((window as any).ethereum); // Create provider using MetaMask
-                const accounts = await provider.send('eth_requestAccounts', []); // Request wallet connection and accounts
+                // const accounts = await provider.send('eth_requestAccounts', []); // Request wallet connection and accounts
                 const signer = await provider.getSigner(); // Get the signer (authorized user)
                 // signer is basically a authorized user
                 const walletAddress = await signer.getAddress(); // Get the user's wallet address

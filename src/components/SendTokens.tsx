@@ -11,7 +11,7 @@ interface SendTokensProps {
 }
 
 // The SendTokens component that allows sending tokens
-const SendTokens: React.FC<SendTokensProps> = ({ address }) => {
+const SendTokens: React.FC<SendTokensProps> = ({ }) => {
     // State to store recipient address and token amount
     const [recipient, setRecipient] = useState<string>(''); 
     const [amount, setAmount] = useState<string>('');
