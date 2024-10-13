@@ -1,146 +1,139 @@
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
+// Interface for the props passed to the component
 interface ConnectWalletProps {
     setAddress: (address: string) => void;
 }
 
 const ConnectWallet: React.FC<ConnectWalletProps> = ({ setAddress }) => {
-    const [balance, setBalance] = useState<string>('');
+    // State to store balance, connection status, and loading status
+    const [balance, setBalance] = useState<string>(''); 
     const [isConnected, setIsConnected] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
 
-    const holskyChainId = `0x${Number(17000).toString(16)}`;
+    // Defining the Holsky network configuration for connecting
+    const holskyChainId = `0x${Number(17000).toString(16)}`; // Convert Holsky network ID to hexadecimal format
     const holskyNetwork = {
         chainId: holskyChainId,
-        chainName: 'Holsky',
+        chainName: 'Holsky', // Name of the Holsky network
         nativeCurrency: {
-            name: 'holsky',
-            symbol: 'ETH',
-            decimals: 18,
+            name: 'holsky', // Name of the native currency
+            symbol: 'ETH', // Symbol of the native currency
+            decimals: 18, // Decimal places for the currency
         },
-        rpcUrls: ["https://rpc.ankr.com/eth_holesky"],
-        blockExplorerUrls: ["https://holesky.etherscan.io/"],
+        rpcUrls: ["https://rpc.ankr.com/eth_holesky"], // RPC URL for connecting to Holsky network
+        blockExplorerUrls: ["https://holesky.etherscan.io/"], // Explorer URL for viewing transactions on Holsky
     };
 
+    // Function to switch or add the Holsky network to the user's wallet (MetaMask)
     const switchToHolskyNetwork = async () => {
         try {
-            if ((window as any).ethereum) {
-                const provider = new ethers.BrowserProvider((window as any).ethereum);
-                const currentNetwork = await provider.send('eth_chainId', []);
+            if ((window as any).ethereum) { // Check if MetaMask (Ethereum provider) is available
+                const provider = new ethers.BrowserProvider((window as any).ethereum); // Create provider using MetaMask
+                const currentNetwork = await provider.send('eth_chainId', []); // Get the current network chain ID
+
+                // If the user is not on the Holsky network, attempt to switch or add it
                 if (currentNetwork !== holskyChainId) {
                     try {
+                        // Switch to Holsky network if available
                         await (window as any).ethereum.request({
                             method: 'wallet_switchEthereumChain',
                             params: [{ chainId: holskyChainId }],
                         });
                     } catch (switchError: any) {
                         if (switchError.code === 4902) {
+                            // If the network is not added to MetaMask, add it
                             await (window as any).ethereum.request({
                                 method: 'wallet_addEthereumChain',
                                 params: [holskyNetwork],
                             });
                         } else {
-                            throw switchError;
+                            throw switchError; // Rethrow error if it's not a network-related issue
                         }
                     }
                 }
             }
         } catch (error) {
-            console.error('Failed to switch or add Holsky network:', error);
+            console.error('Failed to switch or add Holsky network:', error); // Log any error related to network switching
         }
     };
 
+    // Function to connect the user's wallet and fetch account details
     const connectWallet = async () => {
-        setLoading(true);
+        setLoading(true); // Set loading state to true while connecting
         try {
-            if ((window as any).ethereum) {
-                const provider = new ethers.BrowserProvider((window as any).ethereum);
-                const accounts = await provider.send('eth_requestAccounts', []);
-                const signer = await provider.getSigner();
-                const walletAddress = await signer.getAddress();
-                setAddress(walletAddress);
+            if ((window as any).ethereum) { // Check if MetaMask (Ethereum provider) is available
+                const provider = new ethers.BrowserProvider((window as any).ethereum); // Create provider using MetaMask
+                const accounts = await provider.send('eth_requestAccounts', []); // Request wallet connection and accounts
+                const signer = await provider.getSigner(); // Get the signer (authorized user)
+                const walletAddress = await signer.getAddress(); // Get the user's wallet address
+                setAddress(walletAddress); // Set the wallet address in the parent component
 
-                const walletBalance = await provider.getBalance(walletAddress);
-                setBalance(ethers.formatEther(walletBalance));
+                const walletBalance = await provider.getBalance(walletAddress); // Fetch the wallet balance
+                setBalance(ethers.formatEther(walletBalance)); // Format and set the balance in ETH
 
-                await switchToHolskyNetwork();
+                await switchToHolskyNetwork(); // Switch to the Holsky network
 
+                // Simulate delay for better UX and set connection status
                 setTimeout(() => {
-                    setIsConnected(true);
-                    setLoading(false);
+                    setIsConnected(true); // Set the connected status to true
+                    setLoading(false); // Disable the loading state
                 }, 2000);
             } else {
-                alert('MetaMask not detected!');
-                setLoading(false);
+                alert('MetaMask not detected!'); // Alert if MetaMask is not installed
+                setLoading(false); // Stop loading in case of error
             }
         } catch (error) {
-            console.error(error);
-            setLoading(false);
+            console.error(error); // Log any errors during connection
+            setLoading(false); // Stop loading in case of error
         }
     };
 
+    // Function to disconnect the wallet by resetting state
     const disconnectWallet = () => {
-        setLoading(true);
+        setLoading(true); // Start loading for a disconnect action
         setTimeout(() => {
-            setAddress('');
-            setBalance('');
-            setIsConnected(false);
-            setLoading(false);
+            setAddress(''); // Clear the wallet address
+            setBalance(''); // Clear the wallet balance
+            setIsConnected(false); // Mark the wallet as disconnected
+            setLoading(false); // Disable the loading state
         }, 2000);
     };
 
+    // Auto-connect the wallet when the component is mounted
     useEffect(() => {
-        connectWallet();
+        connectWallet(); // Attempt to connect the wallet on component mount
     }, [setAddress]);
 
+    // JSX for rendering the component UI
     return (
         <div className="flex flex-col md:flex-row items-center justify-between bg-gray-900 p-6 rounded-lg shadow-lg text-white w-full max-w-[1200px] mx-auto space-y-4 md:space-y-0">
-        <h2 className="text-2xl font-semibold text-gray-300">
-            ETH Balance: <span className="font-bold text-white">{balance} ETH</span>
-        </h2>
+            <h2 className="text-2xl font-semibold text-gray-300">
+                ETH Balance: <span className="font-bold text-white">{balance} ETH</span> {/* Display the wallet balance */}
+            </h2>
 
-        {loading ? (
-            <p className="loader text-gray-200">Loading...</p> // You can style your loader here
-        ) : (
-            !isConnected ? (
-                <button
-                    onClick={connectWallet}
-                    className="bg-gradient-to-r from-green-400 to-green-600 hover:from-green-600 hover:to-green-800 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition duration-300"
-                >
-                    Connect Wallet
-                </button>
+            {loading ? (
+                <p className="loader text-gray-200">Loading...</p> // Show loading indicator while connecting/disconnecting
             ) : (
-                <button
-                    onClick={disconnectWallet}
-                    className="bg-gradient-to-r from-red-400 to-red-600 hover:from-red-600 hover:to-red-800 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition duration-300 hover:scale-110 "
-                >
-                    Disconnect Wallet
-                </button>
-            )
-        )}
-    </div>
+                !isConnected ? (
+                    <button
+                        onClick={connectWallet} // Call connect function when clicked
+                        className="bg-gradient-to-r from-green-400 to-green-600 hover:from-green-600 hover:to-green-800 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition duration-300"
+                    >
+                        Connect Wallet
+                    </button>
+                ) : (
+                    <button
+                        onClick={disconnectWallet} // Call disconnect function when clicked
+                        className="bg-gradient-to-r from-red-400 to-red-600 hover:from-red-600 hover:to-red-800 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition duration-300 hover:scale-110 "
+                    >
+                        Disconnect Wallet
+                    </button>
+                )
+            )}
+        </div>
     );
 };
 
 export default ConnectWallet;
-
-/* HTML: <div class="loader"></div> */
-/*
-.loader {
-    width: 50px;
-    padding: 8px;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: #25b09b;
-    --_m: 
-      conic-gradient(#0000 10%,#000),
-      linear-gradient(#000 0 0) content-box;
-    -webkit-mask: var(--_m);
-            mask: var(--_m);
-    -webkit-mask-composite: source-out;
-            mask-composite: subtract;
-    animation: l3 1s infinite linear;
-  }
-  @keyframes l3 {to{transform: rotate(1turn)}}
-  */
