@@ -2,17 +2,18 @@ import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
 // Interface for the props passed to the component
+//realted to typescript
 interface ConnectWalletProps {
     setAddress: (address: string) => void;
 }
 
 const ConnectWallet: React.FC<ConnectWalletProps> = ({ setAddress }) => {
-    // State to store balance, connection status, and loading status
+    // useState to store balance, connection status, and loading status
     const [balance, setBalance] = useState<string>(''); 
     const [isConnected, setIsConnected] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
 
-    // Defining the Holsky network configuration for connecting
+    // here we are defining the Holsky network configuration for connecting
     const holskyChainId = `0x${Number(17000).toString(16)}`; // Convert Holsky network ID to hexadecimal format
     const holskyNetwork = {
         chainId: holskyChainId,
@@ -29,7 +30,7 @@ const ConnectWallet: React.FC<ConnectWalletProps> = ({ setAddress }) => {
     // Function to switch or add the Holsky network to the user's wallet (MetaMask)
     const switchToHolskyNetwork = async () => {
         try {
-            if ((window as any).ethereum) { // Check if MetaMask (Ethereum provider) is available
+            if ((window as any).ethereum) { // Check if MetaMask Wallet is available
                 const provider = new ethers.BrowserProvider((window as any).ethereum); // Create provider using MetaMask
                 const currentNetwork = await provider.send('eth_chainId', []); // Get the current network chain ID
 
@@ -55,7 +56,8 @@ const ConnectWallet: React.FC<ConnectWalletProps> = ({ setAddress }) => {
                 }
             }
         } catch (error) {
-            console.error('Failed to switch or add Holsky network:', error); // Log any error related to network switching
+            console.error('Failed to switch or add Holsky network:', error); 
+            // give details of  any error related to network switching
         }
     };
 
@@ -63,10 +65,11 @@ const ConnectWallet: React.FC<ConnectWalletProps> = ({ setAddress }) => {
     const connectWallet = async () => {
         setLoading(true); // Set loading state to true while connecting
         try {
-            if ((window as any).ethereum) { // Check if MetaMask (Ethereum provider) is available
+            if ((window as any).ethereum) { // Check if MetaMask  is available
                 const provider = new ethers.BrowserProvider((window as any).ethereum); // Create provider using MetaMask
                 const accounts = await provider.send('eth_requestAccounts', []); // Request wallet connection and accounts
                 const signer = await provider.getSigner(); // Get the signer (authorized user)
+                // signer is basically a authorized user
                 const walletAddress = await signer.getAddress(); // Get the user's wallet address
                 setAddress(walletAddress); // Set the wallet address in the parent component
 
@@ -78,14 +81,14 @@ const ConnectWallet: React.FC<ConnectWalletProps> = ({ setAddress }) => {
                 // Simulate delay for better UX and set connection status
                 setTimeout(() => {
                     setIsConnected(true); // Set the connected status to true
-                    setLoading(false); // Disable the loading state
+                    setLoading(false); 
                 }, 2000);
             } else {
                 alert('MetaMask not detected!'); // Alert if MetaMask is not installed
-                setLoading(false); // Stop loading in case of error
+                setLoading(false); 
             }
         } catch (error) {
-            console.error(error); // Log any errors during connection
+            console.error(error); // give any details of  any errors during connection
             setLoading(false); // Stop loading in case of error
         }
     };
@@ -102,6 +105,7 @@ const ConnectWallet: React.FC<ConnectWalletProps> = ({ setAddress }) => {
     };
 
     // Auto-connect the wallet when the component is mounted
+    // just jaise hi ui render hoga at that time connectWallet() call hoga trying to connect with metamsk wallet
     useEffect(() => {
         connectWallet(); // Attempt to connect the wallet on component mount
     }, [setAddress]);
@@ -110,7 +114,7 @@ const ConnectWallet: React.FC<ConnectWalletProps> = ({ setAddress }) => {
     return (
         <div className="flex flex-col md:flex-row items-center justify-between bg-gray-900 p-6 rounded-lg shadow-lg text-white w-full max-w-[1200px] mx-auto space-y-4 md:space-y-0">
             <h2 className="text-2xl font-semibold text-gray-300">
-                ETH Balance: <span className="font-bold text-white">{balance} ETH</span> {/* Display the wallet balance */}
+                ETH Balance: <span className="font-extrabold text-green-400">{balance} ETH</span> {/* Display the wallet balance */}
             </h2>
 
             {loading ? (
