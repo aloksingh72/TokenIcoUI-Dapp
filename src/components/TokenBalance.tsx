@@ -43,7 +43,7 @@ const TokenBalance: React.FC<TokenBalanceProps> = ({ address }) => {
         }
     };
 
-    // useEffect hook to fetch token balance whenever the address prop changes
+    // useEffect hook is used to fetch token balance whenever the address prop changes
     useEffect(() => {
         fetchTokenBalance(); // Call fetchTokenBalance when the component mounts or address changes
     }, [address]); // Add address as a dependency
