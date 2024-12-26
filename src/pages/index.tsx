@@ -6,7 +6,7 @@ import SendTokens from '../components/SendTokens';
 
 const Home: React.FC = () => {
     const [address, setAddress] = useState<string>('');
-
+// main method starts here
     return (
         <div className="min-h-screen  flex flex-col justify-center items-center text-white">
             <div className="bg-white text-gray-900 shadow-lg rounded-lg p-10 max-w-4xl w-full mx-auto">
